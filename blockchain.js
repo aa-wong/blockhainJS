@@ -1,39 +1,42 @@
-const Block = require('./block')
+'use strict';
+
+const Block = require('./block');
 
 class Blockchain {
   constructor(difficulty) {
-    this.chain = [this.createGenesis()]
-    this.difficulty = difficulty
+    this.chain = this.createGenesis()
+    this.difficulty = difficulty;
   }
 
   createGenesis() {
     return new Block(
       0,
-      new Date().toString(),
       "Genesis Block",
-      "0")
+      "0");
   }
 
   latestBlock() {
-    return this.chain[this.chain.length -  1]
+    return this.chain;
   }
 
-  addBlock(block) {
-    block.previousHash = this.latestBlock().hash
-    block.mineBlock(this.difficulty)
-    this.difficulty ++
-    return this.chain.push(block)
+  addBlock(data) {
+    const block = new Block(++this.chain.index, data);
+    block.previousHash = this.latestBlock().hash;
+    block.previous = this.chain;
+    block.mineBlock(this.difficulty);
+    ++this.difficulty;
+    this.chain = block;
   }
 
-  checkValid() {
-    for (let i = 1; i < this.chain.length; i++) {
-      const current = this.chain[i]
-      const previous = this.chain[i - 1]
-      if (current.hash !== current.calculateHash()) return false
-      if (current.previousHash !== previous.hash) return false
+  entireChain() {
+    let curr = this.chain;
+    const array = [];
+    while (curr) {
+      array.push(curr);
+      curr = curr.previous;
     }
-    return true
+    return array;
   }
 }
 
-module.exports = Blockchain
+module.exports = Blockchain;
